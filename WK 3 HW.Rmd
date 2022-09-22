@@ -1,0 +1,104 @@
+---
+title: "Week 3 HW"
+output: html_document
+date: "2022-09-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+Seatbelts
+
+## Didn't like the monthly vs deaths comparisson, checking other data sets
+
+faithful
+
+## Not decipherable time series data
+
+USAccDeaths
+
+## Multiple time series, too advanced for now
+
+## Decided to go back to Seatbelts as it does provide useable data
+## Will use MAE for compasisson as the average deaths is really the concern and i dont want to penalize the outliers
+
+plot(Seatbelts)
+plot(Seatbelts[,"DriversKilled"])
+deaths = Seatbelts[,"DriversKilled"]
+plot(deaths)
+acf(deaths)
+
+
+## Plot looks to not have trend. Looks like at the end of each year there are more deaths and there is a seasonal component but i am going to try and find a better data set.
+
+plot(JohnsonJohnson)
+
+## Plot looks to have trend
+
+acf(JohnsonJohnson)
+
+## There doesnt seem to be a measure of seasonality just trend
+
+test = HoltWinters(JohnsonJohnson)
+attributes(test)
+plot(test)
+
+## Forecast looks pretty accurate. Outliers of course are not captured well.
+
+##test_f = forecast(test)
+##attributes(test_f)
+
+##plot(test_f)
+##hist(test_f)
+
+##df = data.frame("number" = c("1960","1965","1970","1975","1980"), "Type" = c("r", "r", "r","r","i"))
+##test_f = as.numeric(levels(droplevels(df[,1])))
+
+##Tried to change the x axis to numerical per the internet but couldnt get it to work
+
+## For Air Passengers I will use the MAE as the average passengers is what would be needed to project earnings and plan staffing. Outliers are not as important in this planning.
+
+plot(AirPassengers)
+acf(AirPassengers)
+
+testw = window(AirPassengers, start = 1955, end = 1960)
+
+acf(testw)
+plot(testw)
+
+#Looking at a smaller horizon for seasonality
+
+
+plot(AirPassengers)
+acf(AirPassengers)
+
+#There is an upward trend and seasonality
+
+tmp <- HoltWinters(AirPassengers)
+attributes(tmp)
+plot(tmp)
+
+## tmp_f = forecast(tmp_f)
+##Error in forecast(tmp_f) : could not find function "forecast"
+##Got this error so had to insatlle forecast package and then call it after that...
+
+
+library(forecast)
+tmp_f = forecast(tmp)
+plot(tmp_f)
+attributes(tmp_f)
+
+plot(tmp_f$residuals)
+
+hist(tmp_f$residuals)
+## Shows a normal distribution
+
+Acf(tmp_f$residuals)
+accuracy(tmp_f)
+
+
+## The MAE is 9.774438 telling me that the average spread of the forecast vs reality is about 10 people. If we were planning staffing and seating for these flights 10 people wouldnt shake the model. People routinely cancel flights late or dont show up. If extra people are around we would not staff another plane we would simply give them vouchers. 
+
+```
+
